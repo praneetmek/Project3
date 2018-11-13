@@ -50,7 +50,7 @@ public class IMDBGraphImpl implements IMDBGraph {
             }
             else{
 
-                //currentActor=new ActorNode();
+                ////currentActor=new ActorNode();
 
             }
         }
