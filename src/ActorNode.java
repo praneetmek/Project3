@@ -9,9 +9,9 @@ public class ActorNode implements Node {
     private ArrayList<MovieNode> _movies;
 
 // Constructor
-    public ActorNode(String actorName, ArrayList<MovieNode> movies) {
+    public ActorNode(String actorName) {
         _name = actorName;
-        _movies = movies;
+        _movies = new ArrayList<MovieNode>();
     }
 
 // Methods

@@ -24,44 +24,49 @@ public class IMDBGraphImpl implements IMDBGraph {
 
 // Methods
 
-    public void loadData(){
+    public void loadDataForActors(){
         //Actors
         for (int i=0;i<NUM_INTRO_LINES_ACTORS;i++){
-            System.out.println(_sActors.nextLine());
+           // System.out.println(_sActors.nextLine());
         }
         String newLineForActor;
-        ActorNode currentActor=new ActorNode("Fake Person who doesn't actually exist in the IMDB Database",null);
-        String newMediaName;
+        ActorNode currentActor=new ActorNode("Fake Person who doesn't actually exist in the IMDB Database");
+        String nameOfMovie;
         MovieNode currentMovie;
+        String nameOfActor;
         while(_sActors.hasNextLine()){
             newLineForActor=_sActors.nextLine();
-            if(!newLineForActor.contains("\t")){
-                                                                                //if the next line doesn't contain a tab do nothing
+            if(newLineForActor.indexOf("\t")==0){                              //line where an actor introduced
+               if(isMovie(newLineForActor)){                                   //if that line is a movie
+                   nameOfMovie=getMovieName(newLineForActor);
+                   currentMovie=movieListHasMovie(nameOfMovie);
+                   if(currentMovie==null){                                     //if there is no movie with that name yet
+                       currentMovie=new MovieNode(nameOfMovie);
+                       _movies.add(currentMovie);
+                   }
+                   currentActor.addMovie(currentMovie);
+                   currentMovie.addActor(currentActor);
+               }
             }
-            else if (newLineForActor.indexOf("\t")==0) {                        //if the next line starts with a tab
-                newMediaName = getMovieName(newLineForActor);                   //get the name of the media
-                currentMovie = movieListHasMovie(newMediaName);                 //sets current movie as a movienode if it exists already or null if it doesnt
-                if (currentMovie == null) {
-                    currentMovie = new MovieNode(newMediaName, null);   //if movieNode doesnt exist already, create a new movieNode
-                    if(isMovie(currentMovie)) {                                 // check if the movieNode is a movie
-                        _movies.add(currentMovie);                              // if it is then add that to the movie list
-                    }
-                }
-                currentActor.addMovie(currentMovie);
-                currentMovie.addActor(currentActor);
+            else if(newLineForActor.indexOf("\t")>0){
+                nameOfActor=getActorName(newLineForActor);
+                currentActor=new ActorNode(nameOfActor);
+                nameOfMovie
             }
-            else{
 
-                ////currentActor=new ActorNode();
-
-            }
         }
 
      }
+
      private String getMovieName(String s){
         int indexOfTab=s.indexOf("\t");
         int indexOfYear=s.indexOf(")");
         return s.substring(indexOfTab+1,indexOfYear+1);
+
+     }
+     private String getActorName(String s){
+        int indexOfTab=s.indexOf("\t");
+        return s.substring(0,indexOfTab);
      }
      private MovieNode movieListHasMovie(String name){
             for (MovieNode checkMovieNode : _movies) {
@@ -71,13 +76,14 @@ public class IMDBGraphImpl implements IMDBGraph {
             }
          return null;
      }
-//    private boolean isMovie(String movieString){
-//        boolean isMovie=true;
-//        if(movieNode.getName().charAt(0)=='"' || movieNode.getName().contains("(TV)")){
-//            isMovie=false;
-//        }
-//        return isMovie;
-//    }
+    private boolean isMovie(String fullLine){
+        boolean isMovie=true;
+        int indexOfTab=fullLine.indexOf("\t");
+        if(fullLine.charAt(indexOfTab+1)=='"' || fullLine.contains("(TV)")){
+            isMovie=false;
+        }
+        return isMovie;
+    }
 
 
     /**
@@ -126,4 +132,5 @@ public class IMDBGraphImpl implements IMDBGraph {
         }
         return null;
     }
+
 }

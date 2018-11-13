@@ -9,9 +9,9 @@ public class MovieNode implements Node {
 
 
 // Constructor
-    public MovieNode(String movieName, ArrayList<ActorNode> actors) {
+    public MovieNode(String movieName) {
         _name = movieName;
-        _actors = actors;
+        _actors = new ArrayList<ActorNode>();
     }
 
 
