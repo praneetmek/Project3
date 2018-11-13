@@ -18,6 +18,8 @@ public class IMDBGraphImpl implements IMDBGraph {
     public IMDBGraphImpl(String actorsFile, String actressesFile) throws IOException {
         _sActors = new Scanner(new File(actorsFile),"ISO-8859-1");
         _sActresses = new Scanner(new File(actressesFile),"ISO-8859-1");
+        _movies=new ArrayList<MovieNode>();
+        _actors=new ArrayList<ActorNode>();
     }
 
 // Methods
@@ -25,7 +27,7 @@ public class IMDBGraphImpl implements IMDBGraph {
     public void loadData(){
         //Actors
         for (int i=0;i<NUM_INTRO_LINES_ACTORS;i++){
-            _sActors.nextLine();
+            System.out.println(_sActors.nextLine());
         }
         String newLineForActor;
         ActorNode currentActor=new ActorNode("Fake Person who doesn't actually exist in the IMDB Database",null);
@@ -62,20 +64,20 @@ public class IMDBGraphImpl implements IMDBGraph {
         return s.substring(indexOfTab+1,indexOfYear+1);
      }
      private MovieNode movieListHasMovie(String name){
-        for (MovieNode checkMovieNode:_movies) {
-             if(name.equals(checkMovieNode.getName())){
-                 return checkMovieNode;
-             }
-         }
+            for (MovieNode checkMovieNode : _movies) {
+                if (name.equals(checkMovieNode.getName())) {
+                    return checkMovieNode;
+                }
+            }
          return null;
      }
-    private boolean isMovie(MovieNode movieNode){
-        boolean isMovie=true;
-        if(movieNode.getName().charAt(0)=='"' || movieNode.getName().contains("(TV)")){
-            isMovie=false;
-        }
-        return isMovie;
-    }
+//    private boolean isMovie(String movieString){
+//        boolean isMovie=true;
+//        if(movieNode.getName().charAt(0)=='"' || movieNode.getName().contains("(TV)")){
+//            isMovie=false;
+//        }
+//        return isMovie;
+//    }
 
 
     /**
