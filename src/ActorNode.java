@@ -1,13 +1,15 @@
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class ActorNode implements Node {
 
 // Data
     private String _name;
-    private Collection<MovieNode> _movies;
+    private ArrayList<MovieNode> _movies;
 
 // Constructor
-    public ActorNode(String actorName, Collection<MovieNode> movies) {
+    public ActorNode(String actorName, ArrayList<MovieNode> movies) {
         _name = actorName;
         _movies = movies;
     }
@@ -21,20 +23,26 @@ public class ActorNode implements Node {
         return _name;
     }
 
-    @Override
+
     /**
      * Returns the Collection of neighbors of the node.
      * @return the Collection of all the neighbors of this Node.
      */
-    public Collection<? extends Node> getMovies() {
+    @Override
+    public Collection<? extends Node> getNeighbors() {
         return _movies;
     }
+//    public ArrayList<ActorNode> getActorNeighbors(){
+//        for (MovieNode movieNode: _movies) {
+//
+//        }
+//    }
 
     /**
      *
      * @param movie
      */
     public void addMovie(MovieNode movie) {
-       Boolean added = addAll(_movies, movie);
+       _movies.add(movie);
     }
 }

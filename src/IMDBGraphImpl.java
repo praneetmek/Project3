@@ -1,99 +1,89 @@
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Scanner;
 
-public class IMDBGraphImpl extends IMDBGraph {
+public class IMDBGraphImpl implements IMDBGraph {
 
 // Data
-    private Collection<ActorNode> _actors;
-    private Collection<MovieNode> _movies;
+    private ArrayList<ActorNode> _actors;
+    private ArrayList<MovieNode> _movies;
     private Scanner _sActors;
     private Scanner _sActresses;
+    private final int NUM_INTRO_LINES_ACTORS=239;
 
 
 // Constructor
     public IMDBGraphImpl(String actorsFile, String actressesFile) throws IOException {
-        _sActors = new Scanner(new File(actorsFile));
-        _sActresses = new Scanner(new File(actressesFile));
+        _sActors = new Scanner(new File(actorsFile),"ISO-8859-1");
+        _sActresses = new Scanner(new File(actressesFile),"ISO-8859-1");
     }
 
 // Methods
 
-    private void loadData()
-    {
-        // Actors
-        if(_sActors.next() = "\n")
-        {
-            String x = _sActors.nextLine();
-            actorNode = (_sActors.next(), null);
-            while (!(_sActors.next().equals("\n")))
-            {
-                MovieNode movieNode;
-                movieName = _sActors.next();
-                movieName = movieName + _sActors.next();
-                if(movieNode.getName().equals(movieName) || movieName.charAt(0) == "\"" || _sActors.next().equals("(TV)")) // if TV
-                    x = _sActors.nextLine();
-			    else
-                { // if normal
-                    if(binarySearch(_movies, movieNode.getName()) >= 0)
-                    { // if movieNode is already there, add the actor!
-                        movieNode = singletonList(_movies, movieName).get(0); /////// HOW am i supposed to retrieve this data WTF
-                        movieNode.addActor(actorNode);
-                        actorNode.addMovie(movieNode);
-                        x = _sActors.nextLine();
-                    }
-                    else
-                    { // movieNode doesn't exist yet, so make one and add it to the movie collection!
-                        movieNode = new MovieNode(movieName, actorNode);
-                        Boolean added = addAll(_movies, movieNode);
-                        actorNode.addMovie(movieNode);
-                        x = _sActors.nextLine();
+    public void loadData(){
+        //Actors
+        for (int i=0;i<NUM_INTRO_LINES_ACTORS;i++){
+            _sActors.nextLine();
+        }
+        String newLineForActor;
+        ActorNode currentActor=new ActorNode("Fake Person who doesn't actually exist in the IMDB Database",null);
+        String newMediaName;
+        MovieNode currentMovie;
+        while(_sActors.hasNextLine()){
+            newLineForActor=_sActors.nextLine();
+            if(!newLineForActor.contains("\t")){
+                                                                                //if the next line doesn't contain a tab do nothing
+            }
+            else if (newLineForActor.indexOf("\t")==0) {                        //if the next line starts with a tab
+                newMediaName = getMovieName(newLineForActor);                   //get the name of the media
+                currentMovie = movieListHasMovie(newMediaName);                 //sets current movie as a movienode if it exists already or null if it doesnt
+                if (currentMovie == null) {
+                    currentMovie = new MovieNode(newMediaName, null);   //if movieNode doesnt exist already, create a new movieNode
+                    if(isMovie(currentMovie)) {                                 // check if the movieNode is a movie
+                        _movies.add(currentMovie);                              // if it is then add that to the movie list
                     }
                 }
+                currentActor.addMovie(currentMovie);
+                currentMovie.addActor(currentActor);
             }
-            if(actorNode.getMovies() != null)
-                added = addAll(_actors, actorNode);
-        }
-        // Actresses
-        if(_sActors.next() = "\n")
-        {
-            String x = nextLine();
-            actorNode = (_sActors.next(), null);
-            while (!(_sActors.next().equals("\n")))
-            {
-                MovieNode movieNode;
-                movieName = _sActors.next();
-                movieName = movieName + _sActors.next();
-                if(movieNode.getName().equals(movieName) || movieName.charAt(0) == "\"" || _sActors.next().equals("(TV)")) // if TV
-                    x = _sActors.nextLine();
-                else
-                { // if normal
-                    if(binarySearch(_movies, movieNode.getName()) >= 0)
-                    { // if movieNode is already there, add the actor!
-                        movieNode = singletonList(movieNode).get(0);
-                        movieNode.addActor(actorNode);
-                        actorNode.addMovie(movieNode);
-                        x = _sActors.nextLine();
-                    }
-                    else
-                    { // movieNode doesn't exist yet, so make one and add it to the movie collection!
-                        movieNode = new MovieNode(movieName, actorNode);
-                        Boolean added = addAll(_movies, movieNode);
-                        actorNode.addMovie(movieNode);
-                        x = _sActors.nextLine();
-                    }
-                }
+            else{
+
+                //currentActor=new ActorNode();
+
             }
         }
+
+     }
+     private String getMovieName(String s){
+        int indexOfTab=s.indexOf("\t");
+        int indexOfYear=s.indexOf(")");
+        return s.substring(indexOfTab+1,indexOfYear+1);
+     }
+     private MovieNode movieListHasMovie(String name){
+        for (MovieNode checkMovieNode:_movies) {
+             if(name.equals(checkMovieNode.getName())){
+                 return checkMovieNode;
+             }
+         }
+         return null;
+     }
+    private boolean isMovie(MovieNode movieNode){
+        boolean isMovie=true;
+        if(movieNode.getName().charAt(0)=='"' || movieNode.getName().contains("(TV)")){
+            isMovie=false;
+        }
+        return isMovie;
     }
 
-    private void mergeActorLists() {
-
-    }
 
     /**
      * Gets all the actor nodes in the graph.
      * @return a collection of all the actor and actress nodes in the graph.
      */
     public Collection<? extends Node> getActors () {
-
+        return _actors;
 
     }
 
@@ -102,7 +92,7 @@ public class IMDBGraphImpl extends IMDBGraph {
      * @return a collection of all the movie nodes in the graph.
      */
     public Collection<? extends Node> getMovies () {
-
+        return _movies;
     }
 
     /**
@@ -112,7 +102,12 @@ public class IMDBGraphImpl extends IMDBGraph {
      * if no such movie exists.
      */
     public Node getMovie (String name) {
-
+        for (MovieNode movieNode: _movies) {
+            if(movieNode.getName().equals(name)){
+                return movieNode;
+            }
+        }
+        return null;
     }
 
     /**
@@ -122,6 +117,11 @@ public class IMDBGraphImpl extends IMDBGraph {
      * if no such actor exists.
      */
     public Node getActor (String name) {
-
+        for(ActorNode actorNode:_actors){
+            if (actorNode.getName().equals(name)){
+                return actorNode;
+            }
+        }
+        return null;
     }
 }
