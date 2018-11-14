@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class ActorNode implements Node {
+public class ActorNode implements Node, Comparable<ActorNode> {
 
 // Data
     private String _name;
@@ -32,11 +32,6 @@ public class ActorNode implements Node {
     public Collection<? extends Node> getNeighbors() {
         return _movies;
     }
-//    public ArrayList<ActorNode> getActorNeighbors(){
-//        for (MovieNode movieNode: _movies) {
-//
-//        }
-//    }
 
     /**
      *
@@ -44,5 +39,14 @@ public class ActorNode implements Node {
      */
     public void addMovie(MovieNode movie) {
        _movies.add(movie);
+    }
+
+    /**
+     *
+     * @param actorNode
+     * @return
+     */
+    public int compareTo(ActorNode actorNode) {
+        return actorNode.getName().compareTo(_name);
     }
 }
