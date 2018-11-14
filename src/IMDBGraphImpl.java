@@ -111,13 +111,10 @@ public class IMDBGraphImpl implements IMDBGraph {
      * @return  the name of the movie in the format "[title] (year)"
      */
      private String getMovieName(String s) {
-         int indexOfTab = s.indexOf("\t");
-         int indexOfYear = s.indexOf(")");
-         int indexOfTabAfterName = s.substring(indexOfTab + 1).indexOf("\t");
-         if(indexOfTabAfterName < indexOfYear)
-            return s.substring(indexOfTab + 1, indexOfYear + 1).replace("\t"," ");
-         else
-             return "This is not the real name of the movie because the original name has a parenthesis in the middle of it.";
+         int indexOfFirstTab = s.indexOf("\t");
+         int indexOfTabAfterName = s.substring(indexOfFirstTab + 1).indexOf("\t");
+         int indexOfYear = s.substring(indexOfTabAfterName).indexOf(")");
+         return s.substring(indexOfFirstTab + 1, indexOfYear + 1).replace("\t"," ");
     }
 
     /**
