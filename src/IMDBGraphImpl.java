@@ -12,6 +12,7 @@ public class IMDBGraphImpl implements IMDBGraph {
     private Scanner _sActors;
     private Scanner _sActresses;
     private final int NUM_INTRO_LINES_ACTORS=239;
+    private final int NUM_INTRO_LINES_ACTRESSES=241;
 
 
 // Constructor
@@ -20,6 +21,7 @@ public class IMDBGraphImpl implements IMDBGraph {
         _sActresses = new Scanner(new File(actressesFile),"ISO-8859-1");
         _movies=new ArrayList<MovieNode>();
         _actors=new ArrayList<ActorNode>();
+        loadDataForActors();
     }
 
 // Methods
@@ -27,43 +29,57 @@ public class IMDBGraphImpl implements IMDBGraph {
     public void loadDataForActors(){
         //Actors
         for (int i=0;i<NUM_INTRO_LINES_ACTORS;i++){
-           // System.out.println(_sActors.nextLine());
+           if(_sActors.hasNextLine())
+               System.out.println(_sActors.nextLine());
         }
-        String newLineForActor;
-        ActorNode currentActor=new ActorNode("Fake Person who doesn't actually exist in the IMDB Database");
-        String nameOfMovie;
-        MovieNode currentMovie;
-        String nameOfActor;
-        while(_sActors.hasNextLine()){
-            newLineForActor=_sActors.nextLine();
-            if(newLineForActor.indexOf("\t")==0){                              //line where an actor introduced
-               if(isMovie(newLineForActor)){                                   //if that line is a movie
-                   nameOfMovie=getMovieName(newLineForActor);
-                   currentMovie=movieListHasMovie(nameOfMovie);
-                   if(currentMovie==null){                                     //if there is no movie with that name yet
-                       currentMovie=new MovieNode(nameOfMovie);
-                       _movies.add(currentMovie);
-                   }
-                   currentActor.addMovie(currentMovie);
-                   currentMovie.addActor(currentActor);
-               }
-            }
-            else if(newLineForActor.indexOf("\t")>0){
-                nameOfActor=getActorName(newLineForActor);
-                currentActor=new ActorNode(nameOfActor);
-                nameOfMovie
-            }
-
+        loadDataFromTop(_sActors);
+        //Actresses
+        for (int i=0;i<NUM_INTRO_LINES_ACTRESSES;i++){
+            if(_sActresses.hasNextLine())
+                _sActresses.nextLine();
         }
+        loadDataFromTop(_sActresses);
+     }
+     private void loadDataFromTop(Scanner s){
+         String newLineForActor;
+         ActorNode currentActor=new ActorNode("Fake Person who doesn't actually exist in the IMDB Database");
+         String nameOfMovie;
+         MovieNode currentMovie;
+         String nameOfActor;
+         while(s.hasNextLine()){
+             newLineForActor=s.nextLine();
+             System.out.println(newLineForActor);
+             if(newLineForActor.indexOf("\t")!=-1){
+                 if(newLineForActor.indexOf("\t")>0){                              //line where an actor introduced
+                     nameOfActor=getActorName(newLineForActor);
+                     currentActor=new ActorNode(nameOfActor);
+                     _actors.add(currentActor);
 
+                 }
+                 if(isMovie(newLineForActor)){                                   //if that line is a movie
+                     nameOfMovie=getMovieName(newLineForActor);
+                     currentMovie=movieListHasMovie(nameOfMovie);
+                     if(currentMovie==null){                                     //if there is no movie with that name yet
+                         currentMovie=new MovieNode(nameOfMovie);
+                         _movies.add(currentMovie);
+                     }
+                     currentActor.addMovie(currentMovie);
+                     currentMovie.addActor(currentActor);
+                 }
+             }
+
+
+         }
      }
 
-     private String getMovieName(String s){
-        int indexOfTab=s.indexOf("\t");
-        int indexOfYear=s.indexOf(")");
-        return s.substring(indexOfTab+1,indexOfYear+1);
-
-     }
+     private String getMovieName(String s) {
+         int indexOfTab = s.indexOf("\t");
+         int indexOfYear = s.indexOf(")");
+         if(indexOfTab<indexOfYear)
+            return s.substring(indexOfTab + 1, indexOfYear + 1).replace("\t","");
+         else
+             return "This is not a real movie. The real movie had a parentheses in its name";
+    }
      private String getActorName(String s){
         int indexOfTab=s.indexOf("\t");
         return s.substring(0,indexOfTab);
