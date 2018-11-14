@@ -49,7 +49,7 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
         while(_connectionList.contains(_start) != true) {
             for (Node node : _connectionList) {
                 for(Node neighbor : node.getNeighbors()) {
-                    if (_BFSList.contains(neighbor)) {
+                    if (_BFSList.contains(neighbor)) {   // could also remove from _bfslist bc less space but more time??
                         _connectionList.add(neighbor);
                         break;
                     }
