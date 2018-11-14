@@ -1,12 +1,22 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GraphSearchEngineImpl implements  GraphSearchEngine {
 // Data
-
+    private Node _start;
+    private Node _end;
+    private ArrayList<Node> _BFSList;
+    private ArrayList<Node> _connectionList; //degree of the connection is the length-1
 
 
 // Constructor
-
+    public GraphSearchEngineImpl() {
+        _start = null;
+        _end = null;
+        _BFSList = new ArrayList<Node>();
+        _connectionList = new ArrayList<Node>();
+    }
 
 // Methods
     /**
@@ -19,7 +29,34 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
      * or null if no path exists.
      */
     public List<Node> findShortestPath (Node s, Node t) {
-        return null;
+        _start = s;
+        _end = t;
+        _BFSList.add(_start);
+        _connectionList.add(_end);
+        while(_BFSList.contains(t) != true)
+            getNextNodeSet();
+        backTrack();
+        return _connectionList;
     }
 
+    private void getNextNodeSet() {
+        for(Node node: _BFSList) {
+            _BFSList.addAll(node.getNeighbors());
+        }
+    }
+
+    private List<Node> backTrack() {
+        while(_connectionList.contains(_start) != true) {
+            for (Node node : _connectionList) {
+                for(Node neighbor : node.getNeighbors()) {
+                    if (_BFSList.contains(neighbor)) {
+                        _connectionList.add(neighbor);
+                        break;
+                    }
+                }
+            }
+        }
+        Collections.reverse(_connectionList);
+        return _connectionList;
+    }
 }
