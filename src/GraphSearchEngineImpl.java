@@ -18,9 +18,9 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
         _distance = 0;
         _start = null;
         _end = null;
-        _BFSList = new ArrayList<Node>();
-        _BFSMap = new HashMap<Node, Integer>();
-        _connectionList = new ArrayList<Node>();
+        _BFSList = new ArrayList<>();
+        _BFSMap = new HashMap<>();
+        _connectionList = new ArrayList<>();
     }
 
 // Methods
@@ -64,7 +64,8 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
      * @return
      */
     private List<Node> backTrack() {
-        while(_connectionList.contains(_start) != true) {
+        int iterationNum = 0;
+        while(!_connectionList.contains(_start) || iterationNum <= _BFSList.size()) {
             for (Node node : _connectionList) {
                 for(Node neighbor : node.getNeighbors()) {
                     if (_BFSMap.containsKey(neighbor) && _BFSMap.get(neighbor) == _BFSMap.get(_end)-1) {   // could also remove from _bfslist bc less space but more time??
@@ -73,8 +74,13 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
                     }
                 }
             }
+            iterationNum++;
         }
+
         Collections.reverse(_connectionList);
+        if(_connectionList.size()==1)
+            _connectionList = null;
+
         return _connectionList;
     }
 }
