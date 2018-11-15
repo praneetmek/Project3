@@ -39,7 +39,7 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
         _BFSMap.put(_start, _distance);
         _BFSList.add(_start);
         _connectionList.add(_end);
-        while(_BFSMap.containsValue(t) != true) {
+        while(_BFSMap.containsKey(t) != true) {
             _distance++;
             getNextNodeSet();
         }
@@ -47,6 +47,9 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
         return _connectionList;
     }
 
+    /**
+     *
+     */
     private void getNextNodeSet() {
         for(Node node: _BFSList) {
             _BFSList.addAll(node.getNeighbors());
@@ -56,11 +59,15 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     private List<Node> backTrack() {
         while(_connectionList.contains(_start) != true) {
             for (Node node : _connectionList) {
                 for(Node neighbor : node.getNeighbors()) {
-                    if (_BFSMap.containsValue(neighbor) && _BFSMap.get(neighbor) == _BFSMap.get(_end)-1) {   // could also remove from _bfslist bc less space but more time??
+                    if (_BFSMap.containsKey(neighbor) && _BFSMap.get(neighbor) == _BFSMap.get(_end)-1) {   // could also remove from _bfslist bc less space but more time??
                         _connectionList.add(neighbor);
                         break;
                     }
