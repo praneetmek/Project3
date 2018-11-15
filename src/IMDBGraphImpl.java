@@ -191,7 +191,6 @@ public class IMDBGraphImpl implements IMDBGraph {
      * @return the actor node associated with the specified name or null
      * if no such actor exists.
      */
-    //
     public Node getActor (String name) {
         for(ActorNode actorNode : _actors) {
             if(actorNode.getName().equals(name))

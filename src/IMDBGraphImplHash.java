@@ -2,7 +2,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * An implementation of the IMDBGraph interface that parses through the given IMDB actor/actress files to
+ * make a graph of actors and movies.
+ */
 public class IMDBGraphImplHash implements IMDBGraph {
+
 // Data
     private int _start;
     private Scanner _sActors;
@@ -12,7 +17,6 @@ public class IMDBGraphImplHash implements IMDBGraph {
     private HashMap<String, MovieNode> _movies;
 
 // Constructor
-
     /**
      * @param actorsFile    the file with the actors' information
      * @param actressesFile the file with the actresses' information
@@ -29,7 +33,6 @@ public class IMDBGraphImplHash implements IMDBGraph {
     }
 
 // Methods
-
     /**
      * Gets all the actor nodes in the graph.
      * @return  a collection of all the actor and actress nodes in the graph.
@@ -47,21 +50,21 @@ public class IMDBGraphImplHash implements IMDBGraph {
     }
 
     /**
-     * Returns the movie node having the specified name.
-     * @param name  the name of the requested movie
-     * @return  the movie node associated with the specified name or null if no such movie exists.
-     */
-    public Node getMovie(String name) {
-        return _movies.get(name);
-    }
-
-    /**
      * Returns the actor node having the specified name.
      * @param name  the name of the requested actor
-     * @return  the actor node associated with the specified name or null if no such actor exists.
+     * @return      the actor node associated with the specified name or null if no such actor exists.
      */
     public Node getActor(String name) {
         return _actors.get(name);
+    }
+
+    /**
+     * Returns the movie node having the specified name.
+     * @param name  the name of the requested movie
+     * @return      the movie node associated with the specified name or null if no such movie exists.
+     */
+    public Node getMovie(String name) {
+        return _movies.get(name);
     }
 
     /**
@@ -75,8 +78,8 @@ public class IMDBGraphImplHash implements IMDBGraph {
     }
 
     /**
-     *
-     * @param sc
+     * Loads the data from the scanner, populating the lists of actors and movies.
+     * @param sc    the scanner being used
      */
     private void loadData(Scanner sc) {
         while(sc.hasNextLine()) {
@@ -128,9 +131,9 @@ public class IMDBGraphImplHash implements IMDBGraph {
     }
 
     /**
-     *
-     * @param line
-     * @return
+     * Returns whether the show is a movie or not
+     * @param line  the line with the show name in it
+     * @return      true if the show is a movie, false if it's a TV series/episode
      */
     private boolean isMovie(String line) {
         boolean movie = true;
