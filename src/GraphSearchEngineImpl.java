@@ -8,9 +8,9 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
     private int _distance;
     private Node _start;
     private Node _end;
-    private ArrayList<Node> _BFSList;
-    private HashMap<Node, Integer> _BFSMap;
-    private ArrayList<Node> _connectionList; //degree of the connection is the length-1
+    private ArrayList<Node> _visitedNodesList;
+    private HashMap<Node, Integer> _visitedNodesMap;
+    private ArrayList<Node> _connectionList;
 
 
 // Constructor
@@ -18,8 +18,8 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
         _distance = 0;
         _start = null;
         _end = null;
-        _BFSList = new ArrayList<>();
-        _BFSMap = new HashMap<>();
+        _visitedNodesList = new ArrayList<>();
+        _visitedNodesMap = new HashMap<>();
         _connectionList = new ArrayList<>();
     }
 
@@ -36,14 +36,16 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
     public List<Node> findShortestPath (Node s, Node t) {
         _start = s;
         _end = t;
-        _BFSMap.put(_start, _distance);
-        _BFSList.add(_start);
+        _visitedNodesMap.put(_start, _distance);
+        _visitedNodesList.add(_start);
         _connectionList.add(_end);
-        while(_BFSMap.containsKey(t) != true) {
+
+        while(!_visitedNodesMap.containsKey(t)) {
             _distance++;
             getNextNodeSet();
         }
         backTrack();
+
         return _connectionList;
     }
 
@@ -51,10 +53,10 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
      *
      */
     private void getNextNodeSet() {
-        for(Node node: _BFSList) {
-            _BFSList.addAll(node.getNeighbors());
+        for(Node node: _visitedNodesList) {
+            _visitedNodesList.addAll(node.getNeighbors());
             for(Node neighbor : node.getNeighbors()) {
-                _BFSMap.put(neighbor, _distance);
+                _visitedNodesMap.put(neighbor, _distance);
             }
         }
     }
@@ -64,22 +66,20 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
      * @return
      */
     private List<Node> backTrack() {
-        int iterationNum = 0;
-        while(!_connectionList.contains(_start) || iterationNum <= _BFSList.size()) {
-            for (Node node : _connectionList) {
-                for(Node neighbor : node.getNeighbors()) {
-                    if (_BFSMap.containsKey(neighbor) && _BFSMap.get(neighbor) == _BFSMap.get(_end)-1) {   // could also remove from _bfslist bc less space but more time??
-                        _connectionList.add(neighbor);
-                        break;
-                    }
+        for (Node node : _connectionList) {
+            for(Node neighbor : node.getNeighbors()) {
+                // Checks whether the desired node has already been visited and if it's the shortest path
+                if (_visitedNodesMap.containsKey(neighbor) && _visitedNodesMap.get(neighbor) == _visitedNodesMap.get(_end)-1) {
+                    _connectionList.add(neighbor);
+                    break;
                 }
             }
-            iterationNum++;
         }
 
-        Collections.reverse(_connectionList);
         if(_connectionList.size()==1)
             _connectionList = null;
+        else
+            Collections.reverse(_connectionList);
 
         return _connectionList;
     }
