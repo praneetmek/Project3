@@ -47,7 +47,7 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
             return null;
         }
         else{
-            backTrack();
+            backTrack(_end);
             return _connectionList;
         }
 
@@ -71,14 +71,13 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
 
     }
 
-    private List<Node> backTrack() {
-        while(_connectionList.contains(_start) != true) {
-            for (Node node : _connectionList) {
-                for(Node neighbor : node.getNeighbors()) {
-                    if (_BFSDistances.containsKey(neighbor) && _BFSDistances.get(neighbor) == _BFSDistances.get(node)-1) {   // could also remove from _bfslist bc less space but more time??
-                        _connectionList.add(neighbor);
-                        System.out.println("added "+neighbor.getName());
-                    }
+    private List<Node> backTrack(Node node) {
+        Node nodeChecked=node;
+        while(!_connectionList.contains(_start)) {
+            for(Node neighbor : nodeChecked.getNeighbors()) {
+                if (_BFSDistances.containsKey(neighbor) && _BFSDistances.get(neighbor) == _BFSDistances.get(nodeChecked)-1) {   // could also remove from _bfslist bc less space but more time??
+                    _connectionList.add(neighbor);
+                    nodeChecked=neighbor;
                 }
             }
         }
