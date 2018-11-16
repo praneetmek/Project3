@@ -8,18 +8,19 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
     private int _distance;
     private Node _start;
     private Node _end;
-    private ArrayList<Node> _BFSList;
-    private HashMap<Node, Integer> _BFSMap;
+    private ArrayList<Node> _BFSQueue;
+    private HashMap<Node, Integer> _BFSDistances;
     private ArrayList<Node> _connectionList; //degree of the connection is the length-1
+    private boolean _isNull;
 
 
 // Constructor
     public GraphSearchEngineImpl() {
-        _distance = 0;
         _start = null;
         _end = null;
-        _BFSList = new ArrayList<Node>();
-        _BFSMap = new HashMap<Node, Integer>();
+        _isNull=false;
+        _BFSQueue = new ArrayList<Node>();
+        _BFSDistances = new HashMap<Node, Integer>();
         _connectionList = new ArrayList<Node>();
     }
 
@@ -36,33 +37,47 @@ public class GraphSearchEngineImpl implements  GraphSearchEngine {
     public List<Node> findShortestPath (Node s, Node t) {
         _start = s;
         _end = t;
-        _BFSMap.put(_start, _distance);
-        _BFSList.add(_start);
+        _BFSDistances.put(_start, 0);
+        _BFSQueue.add(_start);
         _connectionList.add(_end);
-        while(_BFSMap.containsValue(t) != true) {
-            _distance++;
+        while(!_BFSDistances.containsKey(t)&&_isNull==false){
             getNextNodeSet();
         }
-        backTrack();
-        return _connectionList;
+        if (_isNull){
+            return null;
+        }
+        else{
+            backTrack();
+            return _connectionList;
+        }
+
     }
 
     private void getNextNodeSet() {
-        for(Node node: _BFSList) {
-            _BFSList.addAll(node.getNeighbors());
-            for(Node neighbor : node.getNeighbors()) {
-                _BFSMap.put(neighbor, _distance);
-            }
+        if(_BFSQueue.size()==0){
+            _isNull=true;
         }
+        else{
+            Node node=_BFSQueue.get(0);
+            int distanceToNew=_BFSDistances.get(node)+1;
+            for(Node neighbor : node.getNeighbors()) {
+                if(!_BFSDistances.containsKey(neighbor)){
+                    _BFSQueue.addAll(node.getNeighbors());
+                    _BFSDistances.put(neighbor, distanceToNew);
+                }
+            }
+            _BFSQueue.remove(0);
+        }
+
     }
 
     private List<Node> backTrack() {
         while(_connectionList.contains(_start) != true) {
             for (Node node : _connectionList) {
                 for(Node neighbor : node.getNeighbors()) {
-                    if (_BFSMap.containsValue(neighbor) && _BFSMap.get(neighbor) == _BFSMap.get(_end)-1) {   // could also remove from _bfslist bc less space but more time??
+                    if (_BFSDistances.containsKey(neighbor) && _BFSDistances.get(neighbor) == _BFSDistances.get(node)-1) {   // could also remove from _bfslist bc less space but more time??
                         _connectionList.add(neighbor);
-                        break;
+                        System.out.println("added "+neighbor.getName());
                     }
                 }
             }

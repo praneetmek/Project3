@@ -3,153 +3,111 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Scanner;
-import java.util.Collections;
 
-/**
- * An implementation of the IMDBGraph interface that parses through the given IMDB actor/actress files to
- * make a graph of actors and movies.
- */
 public class IMDBGraphImpl implements IMDBGraph {
 
 // Data
     private ArrayList<ActorNode> _actors;
     private ArrayList<MovieNode> _movies;
-    private final Scanner _sActors;
-    private final Scanner _sActresses;
+    private Scanner _sActors;
+    private Scanner _sActresses;
     private final int NUM_INTRO_LINES_ACTORS=239;
     private final int NUM_INTRO_LINES_ACTRESSES=241;
 
 
 // Constructor
-    /**
-     * @param actorsFile    the file with the actors' information
-     * @param actressesFile the file with the actresses' information
-     * @throws IOException
-     */
-    public IMDBGraphImpl(String actorsFile, String actressesFile) throws java.io.IOException {
-        _sActors = new Scanner(new File(actorsFile), "ISO-8859-1");
-        _sActresses = new Scanner(new File(actressesFile), "ISO-8859-1");
-        _movies = new ArrayList<MovieNode>();
-        _actors = new ArrayList<ActorNode>();
+    public IMDBGraphImpl(String actorsFile, String actressesFile) throws IOException {
+        _sActors = new Scanner(new File(actorsFile),"ISO-8859-1");
+        _sActresses = new Scanner(new File(actressesFile),"ISO-8859-1");
+        _movies=new ArrayList<MovieNode>();
+        _actors=new ArrayList<ActorNode>();
         loadDataForActors();
-        if(actorsFile.equals("") || actressesFile.equals("")) {
-            throw new IOException("This isn't working!!!!!");
+        java.util.Collections.sort(_actors);
+        for (ActorNode actor:_actors) {
+            if(actor.getNeighbors()==null){
+                _actors.remove(actor);
+            }
         }
     }
 
 // Methods
 
-    /**
-     * Loads the data from the given actor/actress files.
-     */
-    public void loadDataForActors(){
-
+    private void loadDataForActors(){
         //Actors
-        for (int i=0; i<NUM_INTRO_LINES_ACTORS; i++){
+        for (int i=0;i<NUM_INTRO_LINES_ACTORS;i++){
            if(_sActors.hasNextLine())
-               System.out.println(_sActors.nextLine());
+              _sActors.nextLine();
         }
         loadDataFromTop(_sActors);
-
         //Actresses
-        for (int i=0; i<NUM_INTRO_LINES_ACTRESSES; i++){
+        for (int i=0;i<NUM_INTRO_LINES_ACTRESSES;i++){
             if(_sActresses.hasNextLine())
                 _sActresses.nextLine();
         }
         loadDataFromTop(_sActresses);
-
-        alphabetizeActorList();
      }
+     private void loadDataFromTop(Scanner s){
+         String newLineForActor;
+         ActorNode currentActor=new ActorNode("Fake Person who doesn't actually exist in the IMDB Database");
+         String nameOfMovie;
+         MovieNode currentMovie;
+         String nameOfActor;
+         while(s.hasNextLine()){
+             newLineForActor=s.nextLine();
+             if(newLineForActor.contains("------")){
+                 break;
+             }
+             else {
+                 //System.out.println(newLineForActor);
+                 if (newLineForActor.indexOf("\t") != -1) {
+                     if (newLineForActor.indexOf("\t") > 0) {                              //line where an actor introduced
+                         nameOfActor = getActorName(newLineForActor);
+                         currentActor = new ActorNode(nameOfActor);
+                         _actors.add(currentActor);
 
-    /**
-     *
-     */
-    private void alphabetizeActorList() {
-        Collections.sort(_actors);
-     }
-
-    /**
-     * IDK HOW TO SAW WHAT THIS DOES
-     * @param sc    the scanner that is reading through the file
-     */
-    private void loadDataFromTop(Scanner sc){
-        String newLineForActor;
-        String nameOfActor;
-        String nameOfMovie;
-        MovieNode currentMovie;
-
-        ActorNode currentActor = new ActorNode("Fake Person who doesn't actually exist in the IMDB Database");
-
-        while(sc.hasNextLine()) {
-             newLineForActor = sc.nextLine();
-             System.out.println(newLineForActor);
-
-             if(newLineForActor.indexOf("\t")!=-1) {                                // if not new line
-                 if(newLineForActor.indexOf("\t")>0) {                              // line where an actor introduced
-                     nameOfActor = getActorName(newLineForActor);
-                     currentActor = new ActorNode(nameOfActor);
-                 }
-
-                 if(isMovie(newLineForActor)) {                                   // if that line is a movie
-                     nameOfMovie = getMovieName(newLineForActor);
-                     currentMovie = movieListHasMovie(nameOfMovie);
-                     _movies.add(currentMovie);
-                     currentActor.addMovie(currentMovie);
-                     currentMovie.addActor(currentActor);
+                     }
+                     if (isMovie(newLineForActor)) {
+                         System.out.println(newLineForActor);//if that line is a movie
+                         nameOfMovie = getMovieName(newLineForActor);
+                         currentMovie = movieListHasMovie(nameOfMovie);
+                         if (currentMovie == null) {                                     //if there is no movie with that name yet
+                             currentMovie = new MovieNode(nameOfMovie);
+                             _movies.add(currentMovie);
+                         }
+                         currentActor.addMovie(currentMovie);
+                         currentMovie.addActor(currentActor);
+                     }
                  }
              }
-             else {                                                                 // if new line
-                 if (currentActor.getNeighbors() != null)                           // only adds the actors who have acted in movies
-                    _actors.add(currentActor);
-             }
-        }
+         }
      }
 
-    /**
-     * Gets the name of the movie.
-     * @param s the string containing the movie title within it
-     * @return  the name of the movie in the format "[title] (year)"
-     */
      private String getMovieName(String s) {
-         int indexOfFirstTab = s.indexOf("\t");
-         int indexOfTabAfterName = s.substring(indexOfFirstTab + 1).indexOf("\t");
-         int indexOfYear = s.substring(indexOfTabAfterName).indexOf(")");
-         return s.substring(indexOfFirstTab + 1, indexOfYear + 1).replace("\t"," ");
+         int indexOfTab = s.indexOf("\t");
+         int indexOfYear = s.indexOf(")");
+         if(indexOfTab<indexOfYear)
+            return s.substring(indexOfTab + 1, indexOfYear + 1).replace("\t","");
+         else
+             return "This is not a real movie. The real movie had a parentheses in its name";
     }
-
-    /**
-     * Gets the actor's name.
-     * @param s the string with the actor's name in it
-     * @return  the name of the actor
-     */
-     private String getActorName(String s) {
-        int indexOfTab = s.indexOf("\t");
-        return s.substring(0, indexOfTab);
+     private String getActorName(String s){
+        int indexOfTab=s.indexOf("\t");
+        return s.substring(0,indexOfTab);
      }
-
-    /**
-     *
-     * @param name  the name of the movie
-     * @return  the MovieNode with the desired movie or null if it's not in the list of movies yet
-     */
-     private MovieNode movieListHasMovie(String name) {
-            for (MovieNode movie : _movies) {
-                if (name.equals(movie.getName()))
-                    return movie;
+     private MovieNode movieListHasMovie(String name){
+            for (MovieNode checkMovieNode : _movies) {
+                if (name.equals(checkMovieNode.getName())) {
+                    return checkMovieNode;
+                }
             }
-         return new MovieNode(name);
+         return null;
      }
-
-    /**
-     * Returns whether the film in question is a movie or not.
-     * @param fullLine  the string with all the movie/TV show information in it
-     * @return  true if it's a movie, false if it's a TV show
-     */
-    private boolean isMovie(String fullLine) {
-        boolean isMovie = true;
-        int indexOfTab = fullLine.indexOf("\t");
-        if(fullLine.charAt(indexOfTab+1)=='"' || fullLine.contains("(TV)"))
-            isMovie = false;
+    private boolean isMovie(String fullLine){
+        boolean isMovie=true;
+        int indexOfTab=fullLine.lastIndexOf("\t");
+        if(fullLine.charAt(indexOfTab+1)=='"' || fullLine.contains("(TV)")){
+            isMovie=false;
+        }
         return isMovie;
     }
 
@@ -178,9 +136,10 @@ public class IMDBGraphImpl implements IMDBGraph {
      * if no such movie exists.
      */
     public Node getMovie (String name) {
-        for (MovieNode movieNode : _movies) {
-            if(movieNode.getName().equals(name))
+        for (MovieNode movieNode: _movies) {
+            if(movieNode.getName().equals(name)){
                 return movieNode;
+            }
         }
         return null;
     }
@@ -193,9 +152,10 @@ public class IMDBGraphImpl implements IMDBGraph {
      */
     //
     public Node getActor (String name) {
-        for(ActorNode actorNode : _actors) {
-            if(actorNode.getName().equals(name))
+        for(ActorNode actorNode:_actors){
+            if (actorNode.getName().equals(name)){
                 return actorNode;
+            }
         }
         return null;
     }
